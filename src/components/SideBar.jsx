@@ -14,7 +14,7 @@ import {
   NavLink
 } from "react-router-dom";
 
-export default function Sidebar({
+export default function SideBar({
   open,
   onClose
 }) {

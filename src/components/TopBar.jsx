@@ -5,7 +5,7 @@ import {
   LogOut
 } from "lucide-react";
 
-export default function Topbar({
+export default function TopBar({
   onMenu,
   user,
   onLogout
