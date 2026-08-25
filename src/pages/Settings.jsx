@@ -329,12 +329,9 @@ export default function Settings() {
        */
 
       await api.updateWhatsApp({
-        embeddedSignupCode:
-          signupCode,
+        provider: "twilio",
 
-        phoneNumberId,
-
-        businessAccountId,
+        twilioEnabled: true,
 
         connected: true
       });
@@ -1909,3 +1906,4 @@ export default function Settings() {
     </div>
   );
 }
+
