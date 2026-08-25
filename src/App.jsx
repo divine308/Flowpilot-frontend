@@ -21,6 +21,7 @@ import Orders from "./pages/Orders";
 import Activity from "./pages/Activity";
 import Settings from "./pages/Settings";
 import VerifyEmail from "./pages/VerifyEmail";
+import Payments from "./pages/Payments";
 
 import { api } from "./services/api";
 
@@ -150,6 +151,13 @@ export default function App() {
             path="/inventory"
             element={
               <Inventory />
+            }
+          />
+
+          <Route
+            path="/payments"
+            element={
+              <Payments />
             }
           />
 

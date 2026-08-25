@@ -10,7 +10,8 @@ import {
 import {
   ArrowRight,
   Check,
-  Zap
+  Zap,
+  ChevronDown
 } from "lucide-react";
 
 import Button from "../components/Button";
@@ -24,7 +25,9 @@ export default function Register() {
     useState({
       name: "",
       email: "",
-      password: ""
+      password: "",
+      businessName: "",
+      category: ""
     });
 
   const [loading, setLoading] =
@@ -157,6 +160,158 @@ export default function Register() {
                   placeholder="John Doe"
                   className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-950 focus:ring-4 focus:ring-slate-100"
                 />
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Business name
+                </label>
+
+                <input
+                  name="businessName"
+                  required
+                  value={form.businessName}
+                  onChange={handleChange}
+                  placeholder="Acme Store"
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm outline-none focus:border-slate-950 focus:ring-4 focus:ring-slate-100"
+                />
+              </div>
+
+             <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Business category
+                </label>
+
+                <div className="relative">
+                  <select
+                    name="category"
+                    required
+                    value={form.category}
+                    onChange={handleChange}
+                    className="w-full appearance-none rounded-xl border border-slate-200 bg-white px-4 py-3 pr-10 text-sm text-slate-900 outline-none transition focus:border-slate-950 focus:ring-4 focus:ring-slate-100"
+                  >
+                    <option value="" disabled>
+                      Select a category
+                    </option>
+
+                    <option value="Retail">
+                      Retail
+                    </option>
+
+                    <option value="Clothing & Fashion">
+                      Clothing & Fashion
+                    </option>
+
+                    <option value="Beauty & Cosmetics">
+                      Beauty & Cosmetics
+                    </option>
+
+                    <option value="Food & Restaurant">
+                      Food & Restaurant
+                    </option>
+
+                    <option value="Grocery & Supermarket">
+                      Grocery & Supermarket
+                    </option>
+
+                    <option value="Electronics">
+                      Electronics
+                    </option>
+
+                    <option value="Health & Wellness">
+                      Health & Wellness
+                    </option>
+
+                    <option value="Fitness & Sports">
+                      Fitness & Sports
+                    </option>
+
+                    <option value="Education">
+                      Education
+                    </option>
+
+                    <option value="Professional Services">
+                      Professional Services
+                    </option>
+
+                    <option value="Consulting">
+                      Consulting
+                    </option>
+
+                    <option value="Technology">
+                      Technology
+                    </option>
+
+                    <option value="Software & SaaS">
+                      Software & SaaS
+                    </option>
+
+                    <option value="Marketing & Advertising">
+                      Marketing & Advertising
+                    </option>
+
+                    <option value="Real Estate">
+                      Real Estate
+                    </option>
+
+                    <option value="Construction">
+                      Construction
+                    </option>
+
+                    <option value="Automotive">
+                      Automotive
+                    </option>
+
+                    <option value="Travel & Tourism">
+                      Travel & Tourism
+                    </option>
+
+                    <option value="Hospitality">
+                      Hospitality
+                    </option>
+
+                    <option value="Logistics & Delivery">
+                      Logistics & Delivery
+                    </option>
+
+                    <option value="Financial Services">
+                      Financial Services
+                    </option>
+
+                    <option value="Photography">
+                      Photography
+                    </option>
+
+                    <option value="Creative Services">
+                      Creative Services
+                    </option>
+
+                    <option value="Events & Entertainment">
+                      Events & Entertainment
+                    </option>
+
+                    <option value="Agriculture">
+                      Agriculture
+                    </option>
+
+                    <option value="Manufacturing">
+                      Manufacturing
+                    </option>
+
+                    <option value="Home & Furniture">
+                      Home & Furniture
+                    </option>
+
+                    <option value="Other">
+                      Other
+                    </option>
+                  </select>
+
+                  <ChevronDown
+                    size={17}
+                    className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"
+                  />
+                </div>
               </div>
 
               <div>

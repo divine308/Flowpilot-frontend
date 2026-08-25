@@ -71,6 +71,12 @@ export const api = {
     );
   },
 
+  search(query) {
+  return request(
+    `/search?q=${encodeURIComponent(query)}`
+  );
+},
+
   processWorkflow(data) {
     return request(
       "/workflows/process",
@@ -103,31 +109,159 @@ export const api = {
     );
   },
 
- verifyEmail(data) {
+  verifyEmail(data) {
+    return request(
+      "/auth/verify-email",
+      {
+        method: "POST",
+        body: JSON.stringify(data)
+      }
+    );
+  },
+
+  resendVerification(email) {
+    return request(
+      "/auth/resend-verification",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          email
+        })
+      }
+    );
+  },
+
+  deleteInventory(id) {
+    return request(
+      `/inventory/${id}`,
+      {
+        method: "DELETE"
+      }
+    );
+  },
+
+  orders() {
+    return request(
+      "/orders"
+    );
+  },
+
+  initializePayment(data) {
+    return request(
+      "/payments/initialize",
+      {
+        method: "POST",
+        body: JSON.stringify(data)
+      }
+    );
+  },
+
+  getBusiness() {
   return request(
-    "/auth/verify-email",
+    "/business"
+  );
+},
+updateBusiness(data) {
+  return request(
+    "/business",
     {
-      method: "POST",
+      method: "PATCH",
+      body: JSON.stringify(data)
+    }
+  );
+},
+updateAISettings(data) {
+  return request(
+    "/business/ai-settings",
+    {
+      method: "PATCH",
+      body: JSON.stringify(data)
+    }
+  );
+},
+updateWhatsApp(data) {
+  return request(
+    "/business/whatsapp",
+    {
+      method: "PATCH",
+      body: JSON.stringify(data)
+    }
+  );
+},
+disconnectWhatsApp() {
+  return request(
+    "/business/whatsapp",
+    {
+      method: "DELETE"
+    }
+  );
+},
+updatePaymentSettings(data) {
+  return request(
+    "/business/payment-settings",
+    {
+      method: "PATCH",
       body: JSON.stringify(data)
     }
   );
 },
 
-resendVerification(email) {
-  return request(
-    "/auth/resend-verification",
-    {
-      method: "POST",
-      body: JSON.stringify({
-        email
-      })
-    }
-  );
-},
 
-  orders() {
+  verifyPayment(reference) {
     return request(
-      "/orders"
+      `/payments/verify/${encodeURIComponent(
+        reference
+      )}`
+    );
+  },
+
+  payments() {
+    return request(
+      "/payments"
+    );
+  },
+
+  getPayment(id) {
+    return request(
+      `/payments/${id}`
+    );
+  },
+
+  getBalance() {
+    return request(
+      "/payments/balance"
+    );
+  },
+
+  getBanks() {
+    return request(
+      "/payments/banks"
+    );
+  },
+
+  setupPayoutAccount(data) {
+    return request(
+      "/payments/payout-account",
+      {
+        method: "POST",
+        body: JSON.stringify(data)
+      }
+    );
+  },
+
+  requestPayout(data) {
+    return request(
+      "/payments/payout",
+      {
+        method: "POST",
+        body: JSON.stringify(data)
+      }
+    );
+  },
+
+  payouts() {
+    return request(
+      "/payments/payouts"
     );
   }
 };

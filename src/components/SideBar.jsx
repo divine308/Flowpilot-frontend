@@ -3,6 +3,7 @@ import {
   Workflow,
   Boxes,
   ShoppingBag,
+  CreditCard,
   Activity,
   Settings,
   MessageCircle,
@@ -34,6 +35,13 @@ export default function SideBar({
       path: "/inventory",
       icon: Boxes
     },
+
+      {
+      label: "Payments",
+      path: "/payments",
+      icon: CreditCard
+    },
+
     {
       label: "Orders",
       path: "/orders",

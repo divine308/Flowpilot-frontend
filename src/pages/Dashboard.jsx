@@ -80,16 +80,39 @@ export default function Dashboard() {
       x => x.quantity <= 5
     ).length;
 
+    const now = new Date();
+
+const hour = now.getHours();
+
+const greeting =
+  hour < 12
+    ? "Good morning"
+    : hour < 18
+    ? "Good afternoon"
+    : "Good evening";
+
+const formattedDate =
+  now.toLocaleDateString(
+    "en-NG",
+    {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric"
+    }
+  );
+
+
   return (
     <div className="space-y-8">
       <section className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div>
           <p className="text-sm font-medium text-slate-400">
-            Monday, August 24
+            {formattedDate}
           </p>
 
           <h1 className="mt-1 text-3xl font-bold tracking-tight text-slate-950">
-            Good morning.
+            {greeting}.
           </h1>
 
           <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">
