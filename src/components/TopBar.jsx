@@ -459,8 +459,9 @@ const unreadCount =
             )}
           </button>
 
-          {showNotifications && (
-            <div className="absolute right-0 top-full z-[100] mt-3 w-[360px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
+         {showNotifications && (
+          <div
+            className="absolute right-0 top-full z-[100] mt-3 w-[calc(100vw-2rem)] max-w-[360px] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl sm:w-[360px]">
 
               <div className="flex items-center justify-between border-b border-slate-100 px-4 py-4">
                 <div>
@@ -616,3 +617,5 @@ const unreadCount =
     </header>
   );
 }
+
+showNotifications
