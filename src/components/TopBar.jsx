@@ -617,5 +617,3 @@ const unreadCount =
     </header>
   );
 }
-
-showNotifications
