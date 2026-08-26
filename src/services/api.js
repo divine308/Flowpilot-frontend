@@ -249,6 +249,45 @@ updatePaymentSettings(data) {
     );
   },
 
+  notifications() {
+  return request(
+    "/notifications"
+  );
+},
+
+notificationUnreadCount() {
+  return request(
+    "/notifications/unread-count"
+  );
+},
+
+markNotificationRead(id) {
+  return request(
+    `/notifications/${id}/read`,
+    {
+      method: "PATCH"
+    }
+  );
+},
+
+markAllNotificationsRead() {
+  return request(
+    "/notifications/read-all",
+    {
+      method: "PATCH"
+    }
+  );
+},
+
+deleteNotification(id) {
+  return request(
+    `/notifications/${id}`,
+    {
+      method: "DELETE"
+    }
+  );
+},
+
   requestPayout(data) {
     return request(
       "/payments/payout",
@@ -265,3 +304,4 @@ updatePaymentSettings(data) {
     );
   }
 };
+
