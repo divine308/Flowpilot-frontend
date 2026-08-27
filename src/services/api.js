@@ -4,28 +4,56 @@ if (!API_URL) {
   throw new Error("VITE_API_URL is not configured");
 }
 
+const TOKEN_KEY = "flowpilot_token";
+
+function getToken() {
+  return localStorage.getItem(TOKEN_KEY);
+}
+
+export function saveToken(token) {
+  if (token) {
+    localStorage.setItem(TOKEN_KEY, token);
+  }
+}
+
+export function removeToken() {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
+export function getStoredToken() {
+  return getToken();
+}
+
 async function request(
   endpoint,
   options = {}
 ) {
+  const token = getToken();
+
+  const headers = {
+    "Content-Type": "application/json",
+    ...(options.headers || {})
+  };
+
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   const response = await fetch(
     `${API_URL}${endpoint}`,
     {
-      credentials: "include",
-
-      headers: {
-        "Content-Type":
-          "application/json",
-        ...(options.headers || {})
-      },
-
-      ...options
+      ...options,
+      headers
     }
   );
 
   const data =
     await response.json()
       .catch(() => ({}));
+
+  if (response.status === 401) {
+    removeToken();
+  }
 
   if (!response.ok) {
     throw new Error(
@@ -38,6 +66,7 @@ async function request(
 }
 
 export const api = {
+
   register(data) {
     return request(
       "/auth/register",
@@ -59,6 +88,8 @@ export const api = {
   },
 
   logout() {
+    removeToken();
+
     return request(
       "/auth/logout",
       {
@@ -73,11 +104,33 @@ export const api = {
     );
   },
 
+  verifyEmail(data) {
+    return request(
+      "/auth/verify-email",
+      {
+        method: "POST",
+        body: JSON.stringify(data)
+      }
+    );
+  },
+
+  resendVerification(email) {
+    return request(
+      "/auth/resend-verification",
+      {
+        method: "POST",
+        body: JSON.stringify({
+          email
+        })
+      }
+    );
+  },
+
   search(query) {
-  return request(
-    `/search?q=${encodeURIComponent(query)}`
-  );
-},
+    return request(
+      `/search?q=${encodeURIComponent(query)}`
+    );
+  },
 
   processWorkflow(data) {
     return request(
@@ -111,8 +164,9 @@ export const api = {
     );
   },
 
+  uploadInventoryImage(id, file) {
+    const token = getToken();
 
-    uploadInventoryImage(id, file) {
     const formData = new FormData();
 
     formData.append(
@@ -120,11 +174,18 @@ export const api = {
       file
     );
 
+    const headers = {};
+
+    if (token) {
+      headers.Authorization =
+        `Bearer ${token}`;
+    }
+
     return fetch(
       `${API_URL}/inventory/${id}/image`,
       {
         method: "POST",
-        credentials: "include",
+        headers,
         body: formData
       }
     )
@@ -132,6 +193,10 @@ export const api = {
         const data =
           await response.json()
             .catch(() => ({}));
+
+        if (response.status === 401) {
+          removeToken();
+        }
 
         if (!response.ok) {
           throw new Error(
@@ -142,29 +207,6 @@ export const api = {
 
         return data;
       });
-  },
-
-  
-  verifyEmail(data) {
-    return request(
-      "/auth/verify-email",
-      {
-        method: "POST",
-        body: JSON.stringify(data)
-      }
-    );
-  },
-
-  resendVerification(email) {
-    return request(
-      "/auth/resend-verification",
-      {
-        method: "POST",
-        body: JSON.stringify({
-          email
-        })
-      }
-    );
   },
 
   deleteInventory(id) {
@@ -193,61 +235,63 @@ export const api = {
   },
 
   getBusiness() {
-  return request(
-    "/business"
-  );
-},
-updateBusiness(data) {
-  return request(
-    "/business",
-    {
-      method: "PATCH",
-      body: JSON.stringify(data)
-    }
-  );
-},
-updateAISettings(data) {
-  return request(
-    "/business/ai-settings",
-    {
-      method: "PATCH",
-      body: JSON.stringify(data)
-    }
-  );
-},
-updateWhatsApp(data) {
-  return request(
-    "/business/whatsapp",
-    {
-      method: "PATCH",
-      body: JSON.stringify(data)
-    }
-  );
-},
-disconnectWhatsApp() {
-  return request(
-    "/business/whatsapp",
-    {
-      method: "DELETE"
-    }
-  );
-},
-updatePaymentSettings(data) {
-  return request(
-    "/business/payment-settings",
-    {
-      method: "PATCH",
-      body: JSON.stringify(data)
-    }
-  );
-},
+    return request(
+      "/business"
+    );
+  },
 
+  updateBusiness(data) {
+    return request(
+      "/business",
+      {
+        method: "PATCH",
+        body: JSON.stringify(data)
+      }
+    );
+  },
+
+  updateAISettings(data) {
+    return request(
+      "/business/ai-settings",
+      {
+        method: "PATCH",
+        body: JSON.stringify(data)
+      }
+    );
+  },
+
+  updateWhatsApp(data) {
+    return request(
+      "/business/whatsapp",
+      {
+        method: "PATCH",
+        body: JSON.stringify(data)
+      }
+    );
+  },
+
+  disconnectWhatsApp() {
+    return request(
+      "/business/whatsapp",
+      {
+        method: "DELETE"
+      }
+    );
+  },
+
+  updatePaymentSettings(data) {
+    return request(
+      "/business/payment-settings",
+      {
+        method: "PATCH",
+        body: JSON.stringify(data)
+      }
+    );
+  },
 
   verifyPayment(reference) {
     return request(
-      `/payments/verify/${encodeURIComponent(
-        reference
-      )}`
+      `/payments/verify/${encodeURIComponent(reference)}`
     );
   },
 
@@ -286,43 +330,43 @@ updatePaymentSettings(data) {
   },
 
   notifications() {
-  return request(
-    "/notifications"
-  );
-},
+    return request(
+      "/notifications"
+    );
+  },
 
-notificationUnreadCount() {
-  return request(
-    "/notifications/unread-count"
-  );
-},
+  notificationUnreadCount() {
+    return request(
+      "/notifications/unread-count"
+    );
+  },
 
-markNotificationRead(id) {
-  return request(
-    `/notifications/${id}/read`,
-    {
-      method: "PATCH"
-    }
-  );
-},
+  markNotificationRead(id) {
+    return request(
+      `/notifications/${id}/read`,
+      {
+        method: "PATCH"
+      }
+    );
+  },
 
-markAllNotificationsRead() {
-  return request(
-    "/notifications/read-all",
-    {
-      method: "PATCH"
-    }
-  );
-},
+  markAllNotificationsRead() {
+    return request(
+      "/notifications/read-all",
+      {
+        method: "PATCH"
+      }
+    );
+  },
 
-deleteNotification(id) {
-  return request(
-    `/notifications/${id}`,
-    {
-      method: "DELETE"
-    }
-  );
-},
+  deleteNotification(id) {
+    return request(
+      `/notifications/${id}`,
+      {
+        method: "DELETE"
+      }
+    );
+  },
 
   requestPayout(data) {
     return request(
@@ -340,4 +384,3 @@ deleteNotification(id) {
     );
   }
 };
-

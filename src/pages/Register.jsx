@@ -15,7 +15,10 @@ import {
 } from "lucide-react";
 
 import Button from "../components/Button";
-import { api } from "../services/api";
+import {
+  api,
+  saveToken
+} from "../services/api";
 
 export default function Register() {
   const navigate =
@@ -51,17 +54,16 @@ export default function Register() {
   setError("");
 
   try {
-    await api.register(form);
+    const data = await api.verifyEmail({
+      email,
+      code
+    });
 
-    navigate(
-      `/verify-email?email=${encodeURIComponent(
-        form.email
-      )}`
-    );
+    saveToken(data.token);
+
+    navigate("/");
   } catch (error) {
-    setError(
-      error.message
-    );
+    setError(error.message);
   } finally {
     setLoading(false);
   }

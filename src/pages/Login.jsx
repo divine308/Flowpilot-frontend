@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 import Button from "../components/Button";
-import { api } from "../services/api";
+import { api, saveToken } from "../services/api";
 
 export default function Login({
   onLogin
@@ -49,12 +49,14 @@ export default function Login({
     setError("");
 
     try {
-      const data =
-        await api.login(form);
+     const data =
+  await api.login(form);
 
-      onLogin(data.user);
+saveToken(data.token);
 
-      navigate("/");
+onLogin(data.user);
+
+navigate("/");
     } catch (error) {
       setError(
         error.message
@@ -210,7 +212,7 @@ export default function Login({
           <div className="mt-8 flex items-center gap-2 text-xs text-slate-400">
             <ShieldCheck size={15} />
 
-            Your session is secured with HTTP-only authentication.
+            Your session is secured with JWT authentication.
           </div>
 
           <p className="mt-8 text-center text-sm text-slate-500">
