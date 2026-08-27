@@ -109,6 +109,40 @@ export const api = {
     );
   },
 
+
+    uploadInventoryImage(id, file) {
+    const formData = new FormData();
+
+    formData.append(
+      "image",
+      file
+    );
+
+    return fetch(
+      `${API_URL}/inventory/${id}/image`,
+      {
+        method: "POST",
+        credentials: "include",
+        body: formData
+      }
+    )
+      .then(async response => {
+        const data =
+          await response.json()
+            .catch(() => ({}));
+
+        if (!response.ok) {
+          throw new Error(
+            data.message ||
+            "Failed to upload inventory image"
+          );
+        }
+
+        return data;
+      });
+  },
+
+  
   verifyEmail(data) {
     return request(
       "/auth/verify-email",

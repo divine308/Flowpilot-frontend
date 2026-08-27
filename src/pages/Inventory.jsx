@@ -1,6 +1,7 @@
 import {
   useEffect,
-  useState
+  useState,
+  useRef
 } from "react";
 import {
   Plus,
@@ -8,7 +9,10 @@ import {
   AlertTriangle,
   Trash2,
   Loader2,
-  X
+  X,
+  Upload,
+  Image as ImageIcon,
+  RefreshCw
 } from "lucide-react";
 import Button from "../components/Button";
 import Badge from "../components/Badge";
@@ -26,14 +30,90 @@ export default function Inventory() {
     useState(null);
   const [showForm, setShowForm] =
     useState(false);
-  const [form, setForm] =
-    useState({
-      sku: "",
-      name: "",
-      size: "",
-      quantity: "",
-      price: ""
-    });
+ const [form, setForm] =
+  useState({
+    sku: "",
+    name: "",
+    size: "",
+    quantity: "",
+    price: "",
+    image: null,
+    imagePreview: null
+  });
+
+    const [dragActive, setDragActive] =
+  useState(false);
+
+const fileInputRef = useRef(null);
+
+function handleImage(file) {
+  if (!file) return;
+
+  if (!file.type.startsWith("image/")) {
+    alert("Please select an image file.");
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    alert("Image must be smaller than 5MB.");
+    return;
+  }
+
+  setForm({
+    ...form,
+    image: file,
+    imagePreview:
+      URL.createObjectURL(file)
+  });
+}
+
+function handleImageChange(e) {
+  const file =
+    e.target.files?.[0];
+
+  handleImage(file);
+}
+
+function handleDragOver(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  setDragActive(true);
+}
+
+function handleDragLeave(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  setDragActive(false);
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  setDragActive(false);
+
+  const file =
+    e.dataTransfer.files?.[0];
+
+  handleImage(file);
+}
+
+function removeImage() {
+  if (form.imagePreview) {
+    URL.revokeObjectURL(
+      form.imagePreview
+    );
+  }
+
+  setForm({
+    ...form,
+    image: null,
+    imagePreview: null
+  });
+
+  if (fileInputRef.current) {
+    fileInputRef.current.value = "";
+  }
+}
   async function load() {
     try {
       const data =
@@ -53,42 +133,69 @@ export default function Inventory() {
   useEffect(() => {
     load();
   }, []);
-  async function createItem(e) {
-    e.preventDefault();
-    if (creating) {
-      return;
-    }
-    try {
-      setCreating(true);
+ async function createItem(e) {
+  e.preventDefault();
+
+  if (creating) {
+    return;
+  }
+
+  try {
+    setCreating(true);
+
+    const data =
       await api.createInventory({
-        ...form,
+        sku: form.sku,
+        name: form.name,
+        size: form.size,
         quantity:
           Number(form.quantity),
         price:
           Number(form.price)
       });
-      setForm({
-        sku: "",
-        name: "",
-        size: "",
-        quantity: "",
-        price: ""
-      });
-      setShowForm(false);
-      await load();
-    } catch (error) {
-      console.error(
-        "Failed to create inventory item:",
-        error
+
+    const createdItem =
+      data.item;
+
+    if (
+      form.image &&
+      createdItem?._id
+    ) {
+      await api.uploadInventoryImage(
+        createdItem._id,
+        form.image
       );
-      alert(
-        error.message ||
-        "Failed to create inventory item"
-      );
-    } finally {
-      setCreating(false);
     }
+
+    setForm({
+      sku: "",
+      name: "",
+      size: "",
+      quantity: "",
+      price: "",
+      image: null,
+      imagePreview: null
+    });
+
+    setShowForm(false);
+
+    await load();
+
+  } catch (error) {
+    console.error(
+      "Failed to create inventory item:",
+      error
+    );
+
+    alert(
+      error.message ||
+      "Failed to create inventory item"
+    );
+
+  } finally {
+    setCreating(false);
   }
+}
   function openDeleteModal(item) {
     if (deletingId) {
       return;
@@ -200,6 +307,141 @@ export default function Inventory() {
               )
             )}
           </div>
+
+          <div className="md:col-span-5">
+            <label className="mb-2 block text-xs font-semibold text-slate-600">
+              Product image
+            </label>
+
+            {!form.imagePreview ? (
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() =>
+                  fileInputRef.current?.click()
+                }
+                className={`
+                  group relative cursor-pointer
+                  overflow-hidden rounded-2xl
+                  border-2 border-dashed
+                  p-8 text-center
+                  transition-all duration-200
+                  ${
+                    dragActive
+                      ? "border-slate-950 bg-slate-50 scale-[1.01]"
+                      : "border-slate-200 bg-slate-50/50 hover:border-slate-400 hover:bg-slate-50"
+                  }
+                `}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/jpg"
+                  onChange={handleImageChange}
+                  className="hidden"
+                />
+
+                <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-slate-500 shadow-sm ring-1 ring-slate-200 transition group-hover:scale-105 group-hover:text-slate-900">
+                  {dragActive ? (
+                    <Upload size={24} />
+                  ) : (
+                    <ImageIcon size={24} />
+                  )}
+                </div>
+
+                <div className="mt-4">
+                  <p className="text-sm font-semibold text-slate-900">
+                    {dragActive
+                      ? "Drop your image here"
+                      : "Upload product image"}
+                  </p>
+
+                  <p className="mt-1 text-xs text-slate-500">
+                    Drag and drop an image here, or{" "}
+                    <span className="font-semibold text-slate-900 underline underline-offset-2">
+                      browse
+                    </span>
+                  </p>
+
+                  <p className="mt-3 text-[11px] text-slate-400">
+                    PNG, JPG, JPEG or WEBP · Maximum 5MB
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+                <div className="relative aspect-[16/7] w-full overflow-hidden bg-slate-100">
+                  <img
+                    src={form.imagePreview}
+                    alt="Product preview"
+                    className="h-full w-full object-cover"
+                  />
+
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+
+                  <div className="absolute bottom-3 left-3">
+                    <div className="rounded-lg bg-black/60 px-3 py-1.5 text-xs font-medium text-white backdrop-blur-md">
+                      Product preview
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={e => {
+                      e.stopPropagation();
+                      removeImage();
+                    }}
+                    className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-xl bg-white/90 text-slate-600 shadow-lg backdrop-blur transition hover:bg-red-50 hover:text-red-600"
+                    title="Remove image"
+                  >
+                    <X size={17} />
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between gap-4 border-t border-slate-200 bg-white p-4">
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-semibold text-slate-900">
+                      {form.image?.name ||
+                        "Product image"}
+                    </p>
+
+                    {form.image && (
+                      <p className="mt-0.5 text-xs text-slate-400">
+                        {(
+                          form.image.size /
+                          1024 /
+                          1024
+                        ).toFixed(2)}{" "}
+                        MB
+                      </p>
+                    )}
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      fileInputRef.current?.click()
+                    }
+                    className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+                  >
+                    <RefreshCw size={14} />
+                    Replace image
+                  </button>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/jpg"
+                    onChange={handleImageChange}
+                    className="hidden"
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+
           <div className="mt-5 flex justify-end">
             <Button
               type="submit"
