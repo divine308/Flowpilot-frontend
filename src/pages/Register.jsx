@@ -17,7 +17,7 @@ import {
 import Button from "../components/Button";
 import {
   api,
-  saveToken
+
 } from "../services/api";
 
 export default function Register() {
@@ -54,13 +54,11 @@ export default function Register() {
   setError("");
 
   try {
-    const data = await api.register(form);
+    await api.register(form);
 
-    navigate("/verify-email", {
-      state: {
-        email: form.email
-      }
-    });
+    navigate(
+      `/verify-email?email=${encodeURIComponent(form.email)}`
+    );
 
   } catch (error) {
     setError(error.message);
