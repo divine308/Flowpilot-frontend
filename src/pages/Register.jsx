@@ -54,21 +54,20 @@ export default function Register() {
   setError("");
 
   try {
-    const data = await api.verifyEmail({
-      email,
-      code
+    const data = await api.register(form);
+
+    navigate("/verify-email", {
+      state: {
+        email: form.email
+      }
     });
 
-    saveToken(data.token);
-
-    navigate("/");
   } catch (error) {
     setError(error.message);
   } finally {
     setLoading(false);
   }
 }
-
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="mx-auto flex min-h-screen max-w-6xl items-center justify-center px-6 py-12">
