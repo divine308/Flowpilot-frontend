@@ -77,15 +77,22 @@ export const api = {
     );
   },
 
-  login(data) {
-    return request(
-      "/auth/login",
-      {
-        method: "POST",
-        body: JSON.stringify(data)
-      }
-    );
-  },
+login(data) {
+  return request(
+    "/auth/login",
+    {
+      method: "POST",
+      body: JSON.stringify(data)
+    }
+  ).then(result => {
+    if (result.token) {
+      saveToken(result.token);
+    }
+
+    return result;
+  });
+},
+
 
   logout() {
     removeToken();
